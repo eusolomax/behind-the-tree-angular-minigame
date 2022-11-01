@@ -15,11 +15,11 @@ export class AppComponent {
   actionWalkingMoney: string = "Caminhando... (Você encontrou dinheiro!)"
   actionWalkingL10: string = "Caminhando... (Pisou em uma farpa) -10 de vida"
   actionWalkingL10v2: string = "Caminhando... (Uma cobra te picou) -10 de vida"
-  actionWalkingG10: string = "Cminhando... (Olha, uma borboleta!) +10 de vida"
+  actionWalkingG10: string = "Caminhando... (Olha, uma borboleta!) +10 de vida"
   actionWalkingG30: string = "Caminhando... (Incrivel, remedios!) +30 de vida"
 
   actionSleep: string = "Dormindo..."
-  actionSleepL10: string = "Dormindo... (Abelhas me ferroaram) -10 de vida"
+  actionSleepL05: string = "Dormindo... (Fui roubado!) -5 de dinheiro"
   actionSleepG60: string = "Dormindo... (Tive uma boa noite) +60 de stamina"
 
   lastAction!: string
@@ -56,9 +56,19 @@ export class AppComponent {
     }
 
     if (random >= 81 && random <= 100) {
-      this.currentAction = this.actionSleepL10
-      this.lifeQuantity = this.lifeQuantity - 10
+      this.currentAction = this.actionSleepL05
+      this.coinQuantity = this.coinQuantity - 5
       this.staminaQuantity = this.staminaQuantity + 40
+    }
+
+    this.lifeQuantity = this.lifeQuantity + 20
+
+    if (this.lifeQuantity >= 100) {
+      this.lifeQuantity = 100
+    }
+    
+    if (this.coinQuantity < 0) {
+      this.coinQuantity = 0
     }
   }
 
@@ -100,10 +110,6 @@ export class AppComponent {
     if (random >= 91 && random <= 100) {this.currentAction = this.actionWalkingL10v2}
   }
 
-  sleepingCheck(){
-    let random = Math.floor(Math.random() * 90)
-  }
-
   playRoundStamina(){
     this.staminaQuantity = this.staminaQuantity - 5
   }
@@ -132,4 +138,17 @@ export class AppComponent {
     this.lastAction = ""
     this.currentAction = ""
   }
+
+
+  lifeAddGreen(){}
+
+  lifeDecreasesRed(){}
+
+
+  moneyAddGreen(){}
+
+  moneyDecreasesRed(){}
+
+  
+  staminaAddGreen(){}
 }
