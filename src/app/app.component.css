@@ -114,3 +114,35 @@ body {
     -ms-user-select: none;
     user-select: none;
 }
+
+
+
+
+
+.greenFlashText {
+    animation: greenPulse 1s;
+}
+
+.redFlashText {
+    animation: redPulse 1s;
+}
+
+@keyframes greenPulse {
+    0% {
+        color: rgb(97, 235, 18);  
+    }
+
+    100% {
+        color: rgb(255, 255, 255);
+    }
+}
+
+@keyframes redPulse {
+    0% {
+        color: rgb(213, 30, 30);  
+    }
+
+    100% {
+        color: rgb(255, 255, 255);
+    }
+}

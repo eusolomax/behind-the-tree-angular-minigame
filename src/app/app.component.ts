@@ -1,42 +1,60 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
-  userName: string = "Solomax"
-  coinQuantity: number = 0
-  lifeQuantity: number = 100
-  staminaQuantity: number = 100
+export class AppComponent implements OnInit {
+  userData = {
+    userName: "Solomax",
+    coinQuantity: 0,
+    lifeQuantity: 100,
+    staminaQuantity: 100
+  }
 
-  actionWalking: string = "Caminhando..."
-  actionWalkingMoney: string = "Caminhando... (Você encontrou dinheiro!)"
-  actionWalkingL10: string = "Caminhando... (Pisou em uma farpa) -10 de vida"
-  actionWalkingL10v2: string = "Caminhando... (Uma cobra te picou) -10 de vida"
-  actionWalkingG10: string = "Caminhando... (Olha, uma borboleta!) +10 de vida"
-  actionWalkingG30: string = "Caminhando... (Incrivel, remedios!) +30 de vida"
+  actions = {
+    actionWalking: "Caminhando...",
+    actionWalkingMoney: "Caminhando... (Você encontrou dinheiro!)",
+    actionWalkingL10: "Caminhando... (Pisou em uma farpa) -10 de vida",
+    actionWalkingL10v2: "Caminhando... (Uma cobra te picou) -10 de vida",
+    actionWalkingG10: "Caminhando... (Olha, uma borboleta!) +10 de vida",
+    actionWalkingG30: "Caminhando... (Incrivel, remedios!) +30 de vida",
+    actionSleep: "Dormindo...",
+    actionSleepL05: "Dormindo... (Fui roubado!) -5 de dinheiro",
+    actionSleepG60: "Dormindo... (Tive uma boa noite) +60 de stamina"
+  }
 
-  actionSleep: string = "Dormindo..."
-  actionSleepL05: string = "Dormindo... (Fui roubado!) -5 de dinheiro"
-  actionSleepG60: string = "Dormindo... (Tive uma boa noite) +60 de stamina"
-
+  actionsFlashLight = {
+    actionGreenPulseLife: false ,
+    actionGreenPulseStamina: false,
+    actionGreenPulseMoney: false,
+    
+    actionRedPulseLife: false,
+    actionRedPulseStamina: false,
+    actionRedPulseMoney: false
+  }
+  
   lastAction!: string
   currentAction!: string
-
   sleepButtonLocked: boolean = false
+
+  ngOnInit(){
+    this.startGameDefault()
+    this.getDataUser()
+  }
 
   playRound(){
     this.playRoundStamina()
     this.walkPlay()
     this.beforeRoundChecks()
+    this.saveDataUser()
   }
 
   sleepRound(){
     this.sleepPlay()
-    if (this.staminaQuantity >= 100) {
-      this.staminaQuantity = 100
+    if (this.userData.staminaQuantity >= 100) {
+      this.userData.staminaQuantity = 100
     }
   }
 
@@ -44,56 +62,70 @@ export class AppComponent {
     let random = Math.floor(Math.random() * 100)
     console.log(random)
     this.lastAction = this.currentAction
+    this.saveDataUser()
 
     if (random <= 65) {
-      this.currentAction = this.actionSleep
-      this.staminaQuantity = this.staminaQuantity + 40
+      this.currentAction = this.actions.actionSleep
+      this.userData.staminaQuantity = this.userData.staminaQuantity + 40
+      this.activePulsation("green_stamina")
     }
 
     if (random >= 66 && random <= 80) {
-      this.currentAction = this.actionSleepG60
-      this.staminaQuantity = this.staminaQuantity + 60
+      this.currentAction = this.actions.actionSleepG60
+      this.userData.staminaQuantity = this.userData.staminaQuantity + 60
+      this.activePulsation("green_stamina")
     }
 
     if (random >= 81 && random <= 100) {
-      this.currentAction = this.actionSleepL05
-      this.coinQuantity = this.coinQuantity - 5
-      this.staminaQuantity = this.staminaQuantity + 40
+      this.currentAction = this.actions.actionSleepL05
+      this.userData.coinQuantity = this.userData.coinQuantity - 5
+      this.activePulsation("red_money")
+      this.userData.staminaQuantity = this.userData.staminaQuantity + 40
+      this.activePulsation("green_stamina")
+
     }
 
-    this.lifeQuantity = this.lifeQuantity + 20
+    this.userData.lifeQuantity = this.userData.lifeQuantity + 20
+    this.activePulsation("green_life")
 
-    if (this.lifeQuantity >= 100) {
-      this.lifeQuantity = 100
+    if (this.userData.lifeQuantity >= 100) {
+      this.userData.lifeQuantity = 100
     }
     
-    if (this.coinQuantity < 0) {
-      this.coinQuantity = 0
+    if (this.userData.coinQuantity < 0) {
+      this.userData.coinQuantity = 0
     }
   }
 
   walkPlay(){
     let random = Math.floor(Math.random() * 20)
     this.walkingCheck()
-    if (this.currentAction == this.actionWalkingMoney) {this.coinQuantity = this.coinQuantity + random}
 
-    if (this.currentAction == this.actionWalkingG10) {
-      this.lifeQuantity = this.lifeQuantity + 10
-      if (this.lifeQuantity > 100){
-        this.lifeQuantity = 100
+    if (this.currentAction == this.actions.actionWalkingMoney) {
+      this.userData.coinQuantity = this.userData.coinQuantity + random
+      this.activePulsation("green_money")
+    }
+    if (this.currentAction == this.actions.actionWalkingG10) {
+      this.userData.lifeQuantity = this.userData.lifeQuantity + 10
+      this.activePulsation("green_life")
+      if (this.userData.lifeQuantity > 100){
+        this.userData.lifeQuantity = 100
       }
     }
-    if (this.currentAction == this.actionWalkingG30) {
-      this.lifeQuantity = this.lifeQuantity + 30
-      if (this.lifeQuantity > 100){
-        this.lifeQuantity = 100
+    if (this.currentAction == this.actions.actionWalkingG30) {
+      this.userData.lifeQuantity = this.userData.lifeQuantity + 30
+      this.activePulsation("green_life")
+      if (this.userData.lifeQuantity > 100){
+        this.userData.lifeQuantity = 100
       }
     }
-    if (this.currentAction == this.actionWalkingL10) {
-      this.lifeQuantity = this.lifeQuantity - 10
+    if (this.currentAction == this.actions.actionWalkingL10) {
+      this.activePulsation("red_life")
+      this.userData.lifeQuantity = this.userData.lifeQuantity - 10
     }
-    if (this.currentAction == this.actionWalkingL10v2) {
-      this.lifeQuantity = this.lifeQuantity - 30
+    if (this.currentAction == this.actions.actionWalkingL10v2) {
+      this.userData.lifeQuantity = this.userData.lifeQuantity - 30
+      this.activePulsation("red_life")
     }
   }
 
@@ -102,26 +134,52 @@ export class AppComponent {
     console.log(random)
     this.lastAction = this.currentAction
 
-    if (random <= 70) {this.currentAction = this.actionWalking}
-    if (random >= 71 && random <= 75) {this.currentAction = this.actionWalkingMoney}
-    if (random >= 76 && random <= 80) {this.currentAction = this.actionWalkingG10}
-    if (random >= 80 && random <= 85) {this.currentAction = this.actionWalkingG30}
-    if (random >= 86 && random <= 90) {this.currentAction = this.actionWalkingL10}
-    if (random >= 91 && random <= 100) {this.currentAction = this.actionWalkingL10v2}
+    if (random <= 70) {this.currentAction = this.actions.actionWalking}
+
+    if (random >= 71 && random <= 75) {
+      this.currentAction = this.actions.actionWalkingMoney
+  
+    }
+
+    if (random >= 76 && random <= 80) {
+      this.currentAction = this.actions.actionWalkingG10
+  
+
+    }
+
+    if (random >= 80 && random <= 85) {
+      this.currentAction = this.actions.actionWalkingG30
+  
+
+    }
+
+    if (random >= 86 && random <= 90) {
+      this.currentAction = this.actions.actionWalkingL10
+
+    }
+
+    if (random >= 91 && random <= 100) {
+      this.currentAction = this.actions.actionWalkingL10v2
+
+    }
   }
 
   playRoundStamina(){
-    this.staminaQuantity = this.staminaQuantity - 5
+    this.userData.staminaQuantity = this.userData.staminaQuantity - 5
+    this.activePulsation("red_stamina")
   }
 
   beforeRoundChecks(){
-    if (this.staminaQuantity <= 0 || this.lifeQuantity <= 0) {
+    if (this.userData.staminaQuantity <= 0 || this.userData.lifeQuantity <= 0) {
       this.endGame()
       return
     }
   }
 
   endGame(){
+    this.activePulsation("red_life")
+    this.activePulsation("red_money")
+    this.activePulsation("red_stamina")
     alert("Ah, você morreu! Tente novamente!")
     this.startGame()
   }
@@ -132,23 +190,64 @@ export class AppComponent {
   }
 
   startGameDefault(){
-    this.coinQuantity = 0
-    this.lifeQuantity = 100
-    this.staminaQuantity = 100
+    this.userData.coinQuantity = 0
+    this.userData.lifeQuantity = 100
+    this.userData.staminaQuantity = 100
     this.lastAction = ""
     this.currentAction = ""
+
+    this.activePulsation("green_life")
+    this.activePulsation("green_money")
+    this.activePulsation("green_stamina")
   }
 
+  activePulsation(value: any){
+    const that: any = this
 
-  lifeAddGreen(){}
+    switch (value) {
+      case "green_life":
+        TriggerEffect("actionGreenPulseLife")
+        break
+      case "green_money":
+        TriggerEffect("actionGreenPulseMoney")
+        break
+      case "green_stamina":
+        TriggerEffect("actionGreenPulseStamina")
+        break
+      
+      case "red_life":
+        TriggerEffect("actionRedPulseLife")
+        break
+      case "red_money":
+        TriggerEffect("actionRedPulseMoney")
+        break
+      case "red_stamina":
+        TriggerEffect("actionRedPulseStamina")
+        break
+    }
 
-  lifeDecreasesRed(){}
+    function TriggerEffect(value: string){
+      that.actionsFlashLight[value] = true
+      setTimeout(() => {
+        that.actionsFlashLight[value] = false
+      }, 450)
+      
+    }
+  }
 
+  saveDataUser(){
+    let databefore: any = this.userData
+    let data = JSON.stringify(databefore)
+    localStorage.setItem("userdata", data)
+  }
 
-  moneyAddGreen(){}
-
-  moneyDecreasesRed(){}
-
-  
-  staminaAddGreen(){}
+  getDataUser(){
+    let databefore: any = localStorage.getItem("userdata")
+    let data = JSON.parse(databefore)
+    if (localStorage.getItem("userdata") == null) {
+      this.startGameDefault()
+    } else {
+      this.userData = data
+    }
+  }
 }

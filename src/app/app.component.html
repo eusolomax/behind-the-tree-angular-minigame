@@ -1,11 +1,28 @@
 <body>
   <div class="principal-table">
     <table border ="1">
-      <caption><h3>{{userName}}</h3></caption>
+      <caption><h3>{{userData.userName}}</h3></caption>
       <tr>
-        <th>{{coinQuantity}} Coins</th>
-        <th>Vida {{lifeQuantity}}</th>
-        <th>Stamina {{staminaQuantity}}</th>
+        <th [class]="{
+            'greenFlashText': actionsFlashLight.actionGreenPulseMoney === true,
+            'redFlashText': actionsFlashLight.actionRedPulseMoney == true
+          }">
+        {{userData.coinQuantity}} Coins
+        </th>
+
+        <th [class]="{
+          'greenFlashText': actionsFlashLight.actionGreenPulseLife == true,
+          'redFlashText': actionsFlashLight.actionRedPulseLife == true
+        }">
+        Vida {{userData.lifeQuantity}}
+        </th>
+
+        <th [class]="{
+          'greenFlashText': actionsFlashLight.actionGreenPulseStamina == true,
+          'redFlashText': actionsFlashLight.actionRedPulseStamina == true
+        }">
+        Stamina {{userData.staminaQuantity}}
+        </th>
       </tr>
     </table>
     
@@ -20,7 +37,7 @@
         <div class="buttons">
           <button (click)="playRound()">Play</button>
           <p>|||</p>
-          <button (click)="sleepRound()" [disabled]="this.staminaQuantity > 60">Sleep</button>
+          <button (click)="sleepRound()" [disabled]="this.userData.staminaQuantity > 60">Sleep</button>
         </div>
       </div>
     </div>
